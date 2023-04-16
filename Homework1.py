@@ -3,6 +3,7 @@ import time
 
 #Menu interaction variable.
 choice = 5
+stepByStep = False
 
 #Agent variable. 1 = Simple Reflex Agent, 2 = Table-Driven Agent.
 agent = 0
@@ -144,13 +145,15 @@ def isDirty(row, col):
 #A function to suck the dirt.
 def suck(row, col):
     world[row][col] = 'A'
-    print("Sucking dirt at (" + str(row) + ", " + str(col) + ")" + "...\n")
+    if stepByStep == False:
+        print(world)
+    print("Sucking dirt at (" + str(row) + ", " + str(col) + ")" + "..." + " Iteration: " + str(iterations) + "\n")
 
 #A function to generate a random action for the Simple Reflex Agent.
 def SimpleReflexAgent():
     row, col = np.where(world == 'A')
     row, col = row[0], col[0]
-    
+
     #Generates a random number between 0 and 3.
     movement = np.random.randint(0, 4)
     if movement == 0 and row != 0:   #Checks if the agent is at the top of the world and if the action is to move up.
@@ -168,6 +171,13 @@ while choice != 4:
     print("\n")
     #Starts the agent.
     if choice == 1:
+        #Asks the user if they want to see each step of the process.
+        choice = int(input("Do you wish to show steps? (1: Yes, 2: No): "))
+        if choice == 1:
+            stepByStep = True
+        else:
+            stepByStep = False
+
         #Checks if the agent is the Simple Reflex Agent.
         if agent == 1:
             while np.count_nonzero(world == '*') > 0:
@@ -180,10 +190,11 @@ while choice != 4:
                     moveLeft()
                 elif action == 3:
                     moveRight()
-                print(world)
-                print("\n")
                 iterations += 1
-                time.sleep(0.125)
+                if stepByStep == True:
+                    print(world)
+                    print("\n")
+                    time.sleep(0.125)
             print(world)
             print("All dirt has been cleaned, in ", iterations ," iterations!\n")
             iterations = 0
