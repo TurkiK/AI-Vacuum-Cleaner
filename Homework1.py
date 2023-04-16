@@ -14,7 +14,6 @@ iterations = 0
 #World matrix.
 world = []
 
-
 #A function to generate random dirt and walls. Entity is either '*' dirt or '#' wall.
 def RandGen(max, entity):
     #Checks if the max number of dirt or walls has been reached.
@@ -38,9 +37,9 @@ def SelectGen():
 
         #Generates the dirt one by one through row and column.
         while(dirt > 0):
-            row, col = int(input("Enter the row: ")), int(input("Enter the column: "))
-            if row >= 0 and row < 10 and col >= 0 and col < 10:
-                world[row][col] = '*'
+            location = list(map(int,input("Enter the desired location of the dirt, row and column seperated by space: ").split(' ')))
+            if location[0] >= 0 and location[0] < 10 and location[1] >= 0 and location[1] < 10:
+                world[location[0]][location[1]] = '*'
                 print(world)
             else:
                 print("Empty space placed.")
