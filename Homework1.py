@@ -42,6 +42,76 @@ def performanceMeasure():
     stepsTaken = []
 
 
+lookup_table = {
+
+    '00000101': ['up','left'],
+
+    '00000000': ['up', 'right', 'down', 'left'],
+    '00000001': ['left'],
+    '00000010': ['down'],
+    '00000100': ['right'],
+    '00001000': ['up'],
+
+    '00010000': ['up', 'right', 'down'],
+    '00010010': ['down'],
+    '00010100': ['right'],
+    '00011000': ['up'],
+
+    '00100000': ['up', 'right', 'left'],
+    '00100001': ['left'],
+    '00100100': ['right'],
+    '00101000': ['up'],
+
+    '00110000': ['up', 'right'],
+    '00111000': ['up'],
+    '00110100': ['right'],
+
+    '01000000': ['up', 'down', 'left'],
+    '01001000': ['up'],
+    '01000010': ['down'],
+    '01000001': ['left'],
+
+    '01010000': ['up', 'down'],
+    '01011000': ['up'],
+    '01010010': ['down'],
+    
+    '01100000': ['up', 'left'],
+    '01101000': ['up'],
+    '01100001': ['left'],
+
+    '01110000': ['up'],
+    '01111000': ['up'],
+
+    '10000000': ['right', 'down', 'left'],
+    '10000100': ['right'],
+    '10000010': ['down'],
+    '10000001': ['left'],
+
+    '10010000': ['right', 'down'],
+    '10010100': ['right'],
+    '10010010': ['down'],
+
+    '10100000': ['right', 'left'],
+    '10100100': ['right'],
+    '10100001': ['left'],
+
+    '10110000': ['right'],
+    '10110100': ['right'],
+
+    '11000000': ['down', 'left'],
+    '11000010': ['down'],
+    '11000001': ['left'],
+
+    '11010000': ['down'],
+    '11010010': ['down'],
+
+    '11100000': ['left'],
+    '11100001': ['left'],
+
+    '11110000': []
+
+}
+
 #A function to display the world with the row and column numbers.
 def displayWorld(world):
     for i in range(len(world)+1):
@@ -231,12 +301,79 @@ def move(row, col):
         wallAvoided += 1
 
 
+def AppendToA():
+    row, col = np.where(world == 'A')
+    row, col = row[0], col[0]
+    a = ''
+    if row - 1 != world[row - 1, col] or row != 0:
+        a += '0'
+    else:
+        a += '1'
+    if row + 1 != '#' or row != 9:
+        a += '0'
+    else:
+        a += '1'
+    if col - 1 != world[row, col - 1] or col != 0:
+        a += '0'
+    else:
+        a += '1'
+    if col + 1 != '#' or col != 9:
+        a += '0'
+    else:
+        a += '1'
+    return a
+
+
+def AppendToB():
+    row, col = np.where(world == 'A')
+    row, col = row[0], col[0]
+    b = ''
+    if row - 1 != world[row - 1, col] or row != 0:
+        b += '0'
+    else:
+        b += '1'
+    if row + 1 == '*' or row != 9:
+        b += '0'
+    else:
+        b += '1'
+    if col - 1 != world[row, col - 1] or col != 0:
+        b += '0'
+    else:
+        b += '1'
+    if col + 1 == '*' or col != 9:
+        b += '0'
+    else:
+        b += '1'
+    return b
+
+
 #A function to generate a random action for the Simple Reflex Agent.
 def SimpleReflexAgent():
     row, col = np.where(world == 'A')
     row, col = row[0], col[0]
 
     move(row, col)
+
+
+#A function that acts as a table driven agent.
+def TableDrivenAgent():
+    a = AppendToA()
+    b = AppendToB()
+    a+=b
+    if a in lookup_table:
+        action = lookup_table[a][np.random.randint(0, len(lookup_table[a]))]
+        if action == 'up':
+            moveUp()
+        elif action == 'down':
+            moveDown()
+        elif action == 'left':
+            moveLeft()
+        elif action == 'right':
+            moveRight()
+    else:
+        print("Error: No action found for " + a)
+        return
+
 
 
 while choice != 3:
@@ -269,7 +406,15 @@ while choice != 3:
             performanceMeasure()
         #Checks if the agent is the Table-Driven Agent.
         elif agent == 2:
-            print("Table-Driven Agent\n")
+            while np.count_nonzero(world == '*') > 0:
+                TableDrivenAgent()
+                if stepByStep == True:
+                    displayWorld(world)
+                    print("\n")
+                    time.sleep(0.125)
+                iterations += 1
+            displayWorld(world)
+            performanceMeasure()
         else:
             print("You must generate a world first.\n")
     #Generates the world.
