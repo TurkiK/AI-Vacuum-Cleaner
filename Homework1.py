@@ -41,6 +41,16 @@ def performanceMeasure():
     wallAvoided = 0
     stepsTaken = []
 
+def displayWorld(world):
+    for i in range(len(world)+1):
+        if i != 0:
+            print(' ',i-1 ,end = ' ')
+        else :
+            print(' ', end = ' ')
+    print()
+    for rowNumber , row in enumerate(world):
+        print(rowNumber ,row)
+
 
 #A function to generate random dirt and walls. Entity is either '*' dirt or '#' wall.
 def RandGen(max, entity):
@@ -63,13 +73,14 @@ def RandGen(max, entity):
 def SelectGen():
         #Pick the number of dirt the user wants.
         dirt = int(input("How many dirt do you want?"))
-
+        
+        displayWorld(world)
         #Generates the dirt one by one through row and column.
         while(dirt > 0):
             location = list(map(int,input("Enter the desired location of the dirt, row and column seperated by space: ").split(' ')))
             if location[0] >= 0 and location[0] < 10 and location[1] >= 0 and location[1] < 10:
                 world[location[0]][location[1]] = '*'
-                print(world)
+                displayWorld(world)
             else:
                 print("Empty space placed.")
                 continue
@@ -87,7 +98,7 @@ def SelectGen():
             print("\nDirt is more than empty space. Try again.\n")
             return
         else:
-            print(world)
+            displayWorld(world)
             print("World generated.\n")
             return
 
@@ -107,7 +118,7 @@ def RandWorld():
             print("\nDirt is more than empty space. Try again.\n")
             return
         else:
-            print(world)
+            displayWorld(world)
             print("World generated.\n")
             return
 
@@ -198,7 +209,7 @@ def suck(row, col):
     stepsTaken.append(cellsChecked)
     world[row][col] = 'A'
     if stepByStep == False:
-        print(world)
+        displayWorld(world)
     print("Sucking dirt at (" + str(row) + ", " + str(col) + ")" + "..." + " Iteration: " + str(iterations) + "\n")
 
 
@@ -248,11 +259,11 @@ while choice != 3:
             while np.count_nonzero(world == '*') > 0:
                 SimpleReflexAgent()
                 if stepByStep == True:
-                    print(world)
+                    displayWorld(world)
                     print("\n")
                     time.sleep(0.125)
                 iterations += 1
-            print(world)
+            displayWorld(world)
             performanceMeasure()
         #Checks if the agent is the Table-Driven Agent.
         elif agent == 2:
