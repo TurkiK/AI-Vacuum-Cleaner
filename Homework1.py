@@ -1,18 +1,46 @@
 import numpy as np
 import time
 
-#Menu interaction variable.
+#Menu interaction variables.
 choice = 5
 stepByStep = False
 
 #Agent variable. 1 = Simple Reflex Agent, 2 = Table-Driven Agent.
 agent = 0
 
-#Number of times the agent has moved.
-iterations = 0
+#Performance measure variables.
+iterations = 0 #Cells checked + walls avoided. or the number of times the SimpleReflexAgent function was called.
+wallAvoided = 0 #Number of times the agent has avoided a wall; Wall may be # obstacle or matrix boundary.
+cellsChecked = 0 #Number of times the agent has checked a cell.
+cellsCleaned = 0 #Number of times the agent has cleaned a cell.
+stepsTaken = [] #List of steps taken to clean each cell.
 
 #World matrix.
 world = []
+
+#A function to display the performance of the agent during the last world clean up.
+def performanceMeasure():
+    global iterations, wallAvoided, cellsChecked, cellsCleaned, stepsTaken
+    print("All dirt has been cleaned!\n")
+    print("Performance Measures: ")
+    if agent == 1:
+        print("Agent: Simple Reflex Agent")
+    else:
+        print("Agent: Table-Driven Agent")
+    print("Total Iterations: ", iterations) 
+    print("Cells Checked: ", cellsChecked) 
+    print("Walls Avoided: ", wallAvoided) 
+    print("Cells Cleaned: ", cellsCleaned) 
+    print("Steps dirt was found at: ", stepsTaken) 
+    print("Average steps to clean dirt: ", sum(stepsTaken) / len(stepsTaken), "\n") #Average steps taken to clean each cell.
+
+    #Resets the performance measure variables.
+    iterations = 0
+    cellsChecked = 0
+    cellsCleaned = 0
+    wallAvoided = 0
+    stepsTaken = []
+
 
 #A function to generate random dirt and walls. Entity is either '*' dirt or '#' wall.
 def RandGen(max, entity):
@@ -30,6 +58,7 @@ def RandGen(max, entity):
 
     #Recursively calls the function again until the max number of dirt or walls has been reached.
     RandGen(max, entity) 
+
 
 def SelectGen():
         #Pick the number of dirt the user wants.
@@ -62,6 +91,7 @@ def SelectGen():
             print("World generated.\n")
             return
 
+
 def RandWorld():
         #Generates the dirt and walls.
         dirt = int(input("Enter the number of dirt: "))
@@ -81,74 +111,99 @@ def RandWorld():
             print("World generated.\n")
             return
 
+
 #A function to move the agent up.
 def moveUp():
+    global wallAvoided
     #Finds the agent's position.
     row, col = np.where(world == 'A')
     row, col = row[0], col[0]
     #Checks if the agent is not at the top of the world and if the space above the agent is not a wall.
-    if row != 0 and world[row - 1][col] != '#':
+    if world[row - 1][col] != '#':
         if isDirty(row - 1, col):
             world[row][col] = ' '
             suck(row - 1, col)
         else:
             world[row][col] = ' '
             world[row - 1][col] = 'A'
+    else:
+        wallAvoided += 1
+
 
 #A function to move the agent down.
 def moveDown():
+    global wallAvoided
     row, col = np.where(world == 'A')
     row, col = row[0], col[0]
     #Checks if the agent is not at the bottom of the world and if the space below the agent is not a wall.
-    if row != 9 and world[row + 1][col] != '#':
+    if world[row + 1][col] != '#':
         if isDirty(row + 1, col):
             world[row][col] = ' '
             suck(row + 1, col)
         else:
             world[row][col] = ' '
             world[row + 1][col] = 'A'
+    else:
+        wallAvoided += 1
+
 
 #A function to move the agent left.
 def moveLeft():
+    global wallAvoided
     row, col = np.where(world == 'A')
     row, col = row[0], col[0]
     #Checks if the agent is not at the left of the world and if the space to the left of the agent is not a wall.
-    if col != 0 and world[row][col - 1] != '#':
+    if world[row][col - 1] != '#':
         if isDirty(row, col - 1):
             world[row][col] = ' '
             suck(row, col - 1)
         else:
             world[row][col] = ' '
             world[row][col - 1] = 'A'
+    else:
+        wallAvoided += 1
+
 
 #A function to move the agent right.
 def moveRight():
+    global wallAvoided
     row, col = np.where(world == 'A')
     row, col = row[0], col[0]
     #Checks if the agent is not at the right of the world and if the space to the right of the agent is not a wall.
-    if col != 9 and world[row][col + 1] != '#':
+    if world[row][col + 1] != '#':
         if isDirty(row, col + 1):
             world[row][col] = ' '
             suck(row, col + 1)
         else:
             world[row][col] = ' '
             world[row][col + 1] = 'A'
+    else:
+        wallAvoided += 1
+
 
 #A function to check if the space is dirty.
 def isDirty(row, col):
+    global cellsChecked
+    cellsChecked += 1
     if world[row][col] == '*':
         return True
     else:
         return False
 
+
 #A function to suck the dirt.
 def suck(row, col):
+    global cellsCleaned, cellsChecked
+    cellsCleaned += 1
+    stepsTaken.append(cellsChecked)
     world[row][col] = 'A'
     if stepByStep == False:
         print(world)
     print("Sucking dirt at (" + str(row) + ", " + str(col) + ")" + "..." + " Iteration: " + str(iterations) + "\n")
 
+
 def move(row, col):
+    global wallAvoided
     #Generates a random number between 0 and 3.
     movement = np.random.randint(0, 4)
     if movement == 0 and row != 0:   #Checks if the agent is at the top of the world and if the action is to move up.
@@ -159,6 +214,9 @@ def move(row, col):
         moveLeft()
     elif movement == 3 and col != 9: #Checks if the agent is at the right of the world and if the action is to move right.
         moveRight()
+    else:
+        wallAvoided += 1
+
 
 #A function to generate a random action for the Simple Reflex Agent.
 def SimpleReflexAgent():
@@ -167,12 +225,17 @@ def SimpleReflexAgent():
 
     move(row, col)
 
-while choice != 4:
-    print("1: Start sucking dirt.\n2: Generate the world.\n3: Pick an agent.\n4: Quit")
+
+while choice != 3:
+    print("1: Start sucking dirt.\n2: Generate the world.\n3: Quit")
     choice = int(input("Enter a number: "))
     print("\n")
     #Starts the agent.
     if choice == 1:
+        #Picks an agent.
+        agent = int(input("1: Simple Reflex Agent\n2: Table-Driven Agent\nEnter a number: "))
+        print("\n")
+
         #Asks the user if they want to see each step of the process.
         choice = int(input("Do you wish to show steps? (1: Yes, 2: No): "))
         if choice == 1:
@@ -181,22 +244,21 @@ while choice != 4:
             stepByStep = False
 
         #Checks if the agent is the Simple Reflex Agent.
-        if agent == 1:
+        if agent == 1 and world != []:
             while np.count_nonzero(world == '*') > 0:
                 SimpleReflexAgent()
-                iterations += 1
                 if stepByStep == True:
                     print(world)
                     print("\n")
                     time.sleep(0.125)
+                iterations += 1
             print(world)
-            print("All dirt has been cleaned, in ", iterations ," iterations!\n")
-            iterations = 0
+            performanceMeasure()
         #Checks if the agent is the Table-Driven Agent.
         elif agent == 2:
             print("Table-Driven Agent\n")
         else:
-            print("No agent selected.\n")
+            print("You must generate a world first.\n")
     #Generates the world.
     elif choice == 2:
         #Initializes the world with empty spaces.
@@ -209,10 +271,6 @@ while choice != 4:
             SelectGen()
         else:
             print("Invalid input.\n")
-    #Picks an agent.
     elif choice == 3:
-        agent = int(input("1: Simple Reflex Agent\n2: Table-Driven Agent\nEnter a number: "))
-        print("\n")
-    elif choice == 4:
         print("Goodbye!\n")
     
