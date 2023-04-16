@@ -149,21 +149,24 @@ def suck(row, col):
         print(world)
     print("Sucking dirt at (" + str(row) + ", " + str(col) + ")" + "..." + " Iteration: " + str(iterations) + "\n")
 
+def move(row, col):
+    #Generates a random number between 0 and 3.
+    movement = np.random.randint(0, 4)
+    if movement == 0 and row != 0:   #Checks if the agent is at the top of the world and if the action is to move up.
+        moveUp()
+    elif movement == 1 and row != 9: #Checks if the agent is at the bottom of the world and if the action is to move down.
+        moveDown()
+    elif movement == 2 and col != 0: #Checks if the agent is at the left of the world and if the action is to move left.
+        moveLeft()
+    elif movement == 3 and col != 9: #Checks if the agent is at the right of the world and if the action is to move right.
+        moveRight()
+
 #A function to generate a random action for the Simple Reflex Agent.
 def SimpleReflexAgent():
     row, col = np.where(world == 'A')
     row, col = row[0], col[0]
 
-    #Generates a random number between 0 and 3.
-    movement = np.random.randint(0, 4)
-    if movement == 0 and row != 0:   #Checks if the agent is at the top of the world and if the action is to move up.
-        return 0
-    elif movement == 1 and row != 9: #Checks if the agent is at the bottom of the world and if the action is to move down.
-        return 1
-    elif movement == 2 and col != 0: #Checks if the agent is at the left of the world and if the action is to move left.
-        return 2
-    elif movement == 3 and col != 9: #Checks if the agent is at the right of the world and if the action is to move right.
-        return 3
+    move(row, col)
 
 while choice != 4:
     print("1: Start sucking dirt.\n2: Generate the world.\n3: Pick an agent.\n4: Quit")
@@ -181,15 +184,7 @@ while choice != 4:
         #Checks if the agent is the Simple Reflex Agent.
         if agent == 1:
             while np.count_nonzero(world == '*') > 0:
-                action = SimpleReflexAgent()
-                if action == 0:
-                    moveUp()
-                elif action == 1:
-                    moveDown()
-                elif action == 2:
-                    moveLeft()
-                elif action == 3:
-                    moveRight()
+                SimpleReflexAgent()
                 iterations += 1
                 if stepByStep == True:
                     print(world)
