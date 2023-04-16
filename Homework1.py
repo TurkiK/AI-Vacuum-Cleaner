@@ -41,6 +41,8 @@ def performanceMeasure():
     wallAvoided = 0
     stepsTaken = []
 
+
+#A function to display the world with the row and column numbers.
 def displayWorld(world):
     for i in range(len(world)+1):
         if i != 0:
