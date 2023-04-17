@@ -406,7 +406,6 @@ def TableDrivenAgent():
             moveRight()
     else:
         print("Error: No action found for " + a)
-        displayWorld(world)
         return
 
 
@@ -437,8 +436,12 @@ while choice != 3:
                     print("\n")
                     time.sleep(0.125)
                 iterations += 1
-            displayWorld(world)
-            performanceMeasure()
+            if len(stepsTaken) == 0:
+                print("The agent did not clean any dirt.\n")
+            else:
+                displayWorld(world)
+                performanceMeasure()
+                world = []
         #Checks if the agent is the Table-Driven Agent.
         elif agent == 2:
             while np.count_nonzero(world == '*') > 0:
@@ -448,8 +451,12 @@ while choice != 3:
                     print("\n")
                     time.sleep(0.125)
                 iterations += 1
-            displayWorld(world)
-            performanceMeasure()
+            if len(stepsTaken) == 0:
+                print("The agent did not clean any dirt.\n")
+            else:
+                displayWorld(world)
+                performanceMeasure()
+                world = []
         else:
             print("You must generate a world first.\n")
     #Generates the world.
