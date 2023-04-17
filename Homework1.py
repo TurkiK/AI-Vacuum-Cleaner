@@ -38,7 +38,6 @@ lookup_table = {
     '0000TTFT': ['up', 'right', 'left'],
     '0000TFTT': ['up', 'down', 'left'],
     '0000FTTT': ['right', 'down', 'left'],
-
     '0001FFFF': ['up', 'right', 'down'],
     '0001FFTF': ['down'],
     '0001FTFF': ['right'],
@@ -47,19 +46,18 @@ lookup_table = {
     '0001TTFF': ['up', 'right'],
     '0001TFTF': ['up', 'down'],
     '0001TTTF': ['up', 'right', 'down'],
-
     '0010FFFF': ['up', 'right', 'left'],
     '0010FFFT': ['left'],
     '0010FTFF': ['right'],
     '0010TFFF': ['up'],
     '0010TFFT': ['up', 'left'],
     '0010TTFF': ['up', 'right'],
-
+    '0010FTFT': ['right', 'left'],
+    '0010TTFT': ['up', 'right', 'left'],
     '0011FFFF': ['up', 'right'],
     '0011TFFF': ['up'],
     '0011FTFF': ['right'],
     '0011TTFF': ['up', 'right'],
-
     '0100FFFF': ['up', 'down', 'left'],
     '0100TFFF': ['up'],
     '0100FFTF': ['down'],
@@ -68,18 +66,16 @@ lookup_table = {
     '0100TFTF': ['up', 'down'],
     '0100FFTT': ['down', 'left'],
     '0100TFTT': ['up', 'down', 'left'],
-
     '0101FFFF': ['up', 'down'],
     '0101TFFF': ['up'],
     '0101FFTF': ['down'],
-    
+    '0101TFTF': ['up', 'down'],
     '0110FFFF': ['up', 'left'],
     '0110TFFF': ['up'],
     '0110FFFT': ['left'],
-
+    '0110TFFT': ['up', 'left'],
     '0111FFFF': ['up'],
     '0111TFFF': ['up'],
-
     '1000FFFF': ['right', 'down', 'left'],
     '1000FTFF': ['right'],
     '1000FFTF': ['down'],
@@ -88,33 +84,25 @@ lookup_table = {
     '1000FTFT': ['right', 'left'],
     '1000FFTT': ['down', 'left'],
     '1000FTTT': ['right', 'down', 'left'],
-
     '1001FFFF': ['right', 'down'],
     '1001FTFF': ['right'],
     '1001FFTF': ['down'],
     '1001FTTF': ['right', 'down'],
-
     '1010FFFF': ['right', 'left'],
     '1010FTFF': ['right'],
     '1010FFFT': ['left'],
     '1010FTFT': ['right', 'left'],
-
     '1011FFFF': ['right'],
     '1011FTFF': ['right'],
-
     '1100FFFF': ['down', 'left'],
     '1100FFTF': ['down'],
     '1100FFFT': ['left'],
     '1100FFTT': ['down', 'left'],
-
     '1101FFFF': ['down'],
     '1101FFTF': ['down'],
-
     '1110FFFF': ['left'],
     '1110FFFT': ['left'],
-
     '1111FFFF': []
-
 }
 
 #A function to display the performance of the agent during the last world clean up.
