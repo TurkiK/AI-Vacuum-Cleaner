@@ -11,7 +11,7 @@ state = ""
 
 #Performance measure variables.
 iterations = 0 #Cells checked + walls avoided. or the number of times the SimpleReflexAgent function was called.
-wallAvoided = 0 #Number of times the agent has avoided a wall; Wall may be # obstacle or matrix boundary.
+wallsEncountered = 0 #Number of times the agent has avoided a wall; Wall may be # obstacle or matrix boundary.
 cellsChecked = 0 #Number of times the agent has checked a cell.
 cellsCleaned = 0 #Number of times the agent has cleaned a cell.
 stepsMade = 0 #Number of steps the agent has made.
@@ -19,6 +19,7 @@ stepsTaken = [] #List of steps taken to clean each cell.
 
 #World matrix.
 world = []
+prevWorld = []
 
 #Look up table for the table-driven agent containing the actions for each state.
 lookup_table = {
@@ -118,7 +119,7 @@ lookup_table = {
 
 #A function to display the performance of the agent during the last world clean up.
 def getScore():
-    global iterations, wallAvoided, cellsChecked, cellsCleaned, stepsTaken, stepsMade
+    global iterations, wallsEncountered, cellsChecked, cellsCleaned, stepsTaken, stepsMade
     print("All dirt has been cleaned!\n")
     print("Performance Measures: ")
     if agent == 1:
@@ -128,7 +129,7 @@ def getScore():
     print("Total Iterations: ", iterations)
     print("Steps Made: ", stepsMade) 
     print("Cells Checked: ", cellsChecked) 
-    print("Walls Avoided: ", wallAvoided) 
+    print("Walls Encountered: ", wallsEncountered) 
     print("Cells Cleaned: ", cellsCleaned) 
     print("Steps dirt was found at: ", stepsTaken) 
     print("Average steps to clean dirt: ", sum(stepsTaken) / len(stepsTaken), "\n") #Average steps taken to clean each cell.
@@ -137,7 +138,7 @@ def getScore():
     iterations = 0
     cellsChecked = 0
     cellsCleaned = 0
-    wallAvoided = 0
+    wallsEncountered = 0
     stepsMade = 0
     stepsTaken = []
 
@@ -174,6 +175,7 @@ def RandGen(max, entity):
 
 #A function to selectively generate dirt in the world.
 def SelectGen():
+        global prevWorld
         #Pick the number of dirt the user wants.
         dirt = int(input("(?) Enter the number of dirt: "))
         
@@ -201,12 +203,14 @@ def SelectGen():
             print("\n(!) Dirt is more than empty space. Try again.\n")
             return
         else:
+            prevWorld = world.copy()
             displayWorld(world)
             print("World generated!\n")
             return
 
 #A function that randomly generates a world given the number of dirt and walls.
 def RandWorld():
+        global prevWorld
         dirt = int(input("(?) Enter the number of dirt: "))
         RandGen(dirt, '*')
         walls = int(input("(?) Enter the number of walls: "))
@@ -220,6 +224,7 @@ def RandWorld():
             print("\n(!) Dirt is more than empty space. Try again.\n")
             return
         else:
+            prevWorld = world.copy()
             displayWorld(world)
             print("World generated!\n")
             return
@@ -227,7 +232,7 @@ def RandWorld():
 
 #A function to move the agent up.
 def moveUp():
-    global wallAvoided, stepsMade
+    global wallsEncountered, stepsMade
     #Finds the agent's position.
     row, col = np.where(world == 'A')
     row, col = row[0], col[0]
@@ -241,12 +246,12 @@ def moveUp():
             world[row - 1][col] = 'A'
         stepsMade += 1
     else:
-        wallAvoided += 1
+        wallsEncountered += 1
 
 
 #A function to move the agent down.
 def moveDown():
-    global wallAvoided, stepsMade
+    global wallsEncountered, stepsMade
     row, col = np.where(world == 'A')
     row, col = row[0], col[0]
     #Checks if the agent is not at the bottom of the world and if the space below the agent is not a wall.
@@ -259,12 +264,12 @@ def moveDown():
             world[row + 1][col] = 'A'
         stepsMade += 1
     else:
-        wallAvoided += 1
+        wallsEncountered += 1
 
 
 #A function to move the agent left.
 def moveLeft():
-    global wallAvoided, stepsMade
+    global wallsEncountered, stepsMade
     row, col = np.where(world == 'A')
     row, col = row[0], col[0]
     #Checks if the agent is not at the left of the world and if the space to the left of the agent is not a wall.
@@ -277,12 +282,12 @@ def moveLeft():
             world[row][col - 1] = 'A'
         stepsMade += 1
     else:
-        wallAvoided += 1
+        wallsEncountered += 1
 
 
 #A function to move the agent right.
 def moveRight():
-    global wallAvoided, stepsMade
+    global wallsEncountered, stepsMade
     row, col = np.where(world == 'A')
     row, col = row[0], col[0]
     #Checks if the agent is not at the right of the world and if the space to the right of the agent is not a wall.
@@ -295,7 +300,7 @@ def moveRight():
             world[row][col + 1] = 'A'
         stepsMade += 1
     else:
-        wallAvoided += 1
+        wallsEncountered += 1
 
 
 #A function to check if the space is dirty.
@@ -335,7 +340,7 @@ def suck(row, col):
 
 
 def move(row, col):
-    global wallAvoided
+    global wallsEncountered
     #Generates a random number between 0 and 3.
     movement = np.random.randint(0, 4)
     if movement == 0 and row != 0:   #Checks if the agent is at the top of the world and if the action is to move up.
@@ -347,7 +352,7 @@ def move(row, col):
     elif movement == 3 and col != 9: #Checks if the agent is at the right of the world and if the action is to move right.
         moveRight()
     else:
-        wallAvoided += 1 
+        wallsEncountered += 1 
 
 #A function to append the wall percepts of the table-driven agent to the state.
 def AppendWalls(row, col):
@@ -468,11 +473,14 @@ while choice != 3:
         #Initializes the world with empty spaces.
         world = np.full((10,10), ' ')
 
-        choice = int(input("1: Randomly generate a world.\n2: Generate a world with select dirt locations.\nEnter a number: "))
+        choice = int(input("1: Randomly generate a world.\n2: Generate a world with select dirt locations.\n3: Previous world.\nEnter a number: "))
         if choice == 1:
             RandWorld()
         elif choice == 2:
             SelectGen()
+        elif choice == 3:
+            world = prevWorld.copy()
+            choice = 0
         else:
             print("(!) Invalid input.\n")
             choice = 0
