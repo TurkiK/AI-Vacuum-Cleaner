@@ -7,27 +7,128 @@ stepByStep = False
 
 #Agent variable. 1 = Simple Reflex Agent, 2 = Table-Driven Agent.
 agent = 0
+a = ""
 
 #Performance measure variables.
 iterations = 0 #Cells checked + walls avoided. or the number of times the SimpleReflexAgent function was called.
 wallAvoided = 0 #Number of times the agent has avoided a wall; Wall may be # obstacle or matrix boundary.
 cellsChecked = 0 #Number of times the agent has checked a cell.
 cellsCleaned = 0 #Number of times the agent has cleaned a cell.
+stepsMade = 0 #Number of steps the agent has made.
 stepsTaken = [] #List of steps taken to clean each cell.
 
 #World matrix.
 world = []
 
+lookup_table = {
+
+    #'00000101': ['up','left'],
+
+    '0000FFFF': ['up', 'right', 'down', 'left'],
+    '0000FFFT': ['left'],
+    '0000FFTF': ['down'],
+    '0000FTFF': ['right'],
+    '0000TFFF': ['up'],
+    '0000TTFF': ['up', 'right'],
+    '0000FFTT': ['down', 'left'],
+    '0000FTTF': ['right', 'down'],
+    '0000FTFT': ['right', 'left'],
+    '0000TFFT': ['up', 'left'],
+    '0000TFTF': ['up', 'down'],
+    '0000TTTF': ['up', 'right', 'down'],
+    '0000TTFT': ['up', 'right', 'left'],
+    '0000TFTT': ['up', 'down', 'left'],
+    '0000FTTT': ['right', 'down', 'left'],
+
+    '0001FFFF': ['up', 'right', 'down'],
+    '0001FFTF': ['down'],
+    '0001FTFF': ['right'],
+    '0001TFFF': ['up'],
+    '0001FTTF': ['right', 'down'],
+    '0001TTFF': ['up', 'right'],
+    '0001TFTF': ['up', 'down'],
+    '0001TTTF': ['up', 'right', 'down'],
+
+    '0010FFFF': ['up', 'right', 'left'],
+    '0010FFFT': ['left'],
+    '0010FTFF': ['right'],
+    '0010TFFF': ['up'],
+    '0010TFFT': ['up', 'left'],
+    '0010TTFF': ['up', 'right'],
+
+    '0011FFFF': ['up', 'right'],
+    '0011TFFF': ['up'],
+    '0011FTFF': ['right'],
+    '0011TTFF': ['up', 'right'],
+
+    '0100FFFF': ['up', 'down', 'left'],
+    '0100TFFF': ['up'],
+    '0100FFTF': ['down'],
+    '0100FFFT': ['left'],
+    '0100TFFT': ['up', 'left'],
+    '0100TFTF': ['up', 'down'],
+    '0100FFTT': ['down', 'left'],
+    '0100TFTT': ['up', 'down', 'left'],
+
+    '0101FFFF': ['up', 'down'],
+    '0101TFFF': ['up'],
+    '0101FFTF': ['down'],
+    
+    '0110FFFF': ['up', 'left'],
+    '0110TFFF': ['up'],
+    '0110FFFT': ['left'],
+
+    '0111FFFF': ['up'],
+    '0111TFFF': ['up'],
+
+    '1000FFFF': ['right', 'down', 'left'],
+    '1000FTFF': ['right'],
+    '1000FFTF': ['down'],
+    '1000FFFT': ['left'],
+    '1000FTTF': ['right', 'down'],
+    '1000FTFT': ['right', 'left'],
+    '1000FFTT': ['down', 'left'],
+    '1000FTTT': ['right', 'down', 'left'],
+
+    '1001FFFF': ['right', 'down'],
+    '1001FTFF': ['right'],
+    '1001FFTF': ['down'],
+    '1001FTTF': ['right', 'down'],
+
+    '1010FFFF': ['right', 'left'],
+    '1010FTFF': ['right'],
+    '1010FFFT': ['left'],
+    '1010FTFT': ['right', 'left'],
+
+    '1011FFFF': ['right'],
+    '1011FTFF': ['right'],
+
+    '1100FFFF': ['down', 'left'],
+    '1100FFTF': ['down'],
+    '1100FFFT': ['left'],
+    '1100FFTT': ['down', 'left'],
+
+    '1101FFFF': ['down'],
+    '1101FFTF': ['down'],
+
+    '1110FFFF': ['left'],
+    '1110FFFT': ['left'],
+
+    '1111FFFF': []
+
+}
+
 #A function to display the performance of the agent during the last world clean up.
 def performanceMeasure():
-    global iterations, wallAvoided, cellsChecked, cellsCleaned, stepsTaken
+    global iterations, wallAvoided, cellsChecked, cellsCleaned, stepsTaken, stepsMade
     print("All dirt has been cleaned!\n")
     print("Performance Measures: ")
     if agent == 1:
         print("Agent: Simple Reflex Agent")
     else:
         print("Agent: Table-Driven Agent")
-    print("Total Iterations: ", iterations) 
+    print("Total Iterations: ", iterations)
+    print("Steps Made: ", stepsMade) 
     print("Cells Checked: ", cellsChecked) 
     print("Walls Avoided: ", wallAvoided) 
     print("Cells Cleaned: ", cellsCleaned) 
@@ -39,78 +140,9 @@ def performanceMeasure():
     cellsChecked = 0
     cellsCleaned = 0
     wallAvoided = 0
+    stepsMade = 0
     stepsTaken = []
 
-
-lookup_table = {
-
-    '00000101': ['up','left'],
-
-    '00000000': ['up', 'right', 'down', 'left'],
-    '00000001': ['left'],
-    '00000010': ['down'],
-    '00000100': ['right'],
-    '00001000': ['up'],
-
-    '00010000': ['up', 'right', 'down'],
-    '00010010': ['down'],
-    '00010100': ['right'],
-    '00011000': ['up'],
-
-    '00100000': ['up', 'right', 'left'],
-    '00100001': ['left'],
-    '00100100': ['right'],
-    '00101000': ['up'],
-
-    '00110000': ['up', 'right'],
-    '00111000': ['up'],
-    '00110100': ['right'],
-
-    '01000000': ['up', 'down', 'left'],
-    '01001000': ['up'],
-    '01000010': ['down'],
-    '01000001': ['left'],
-
-    '01010000': ['up', 'down'],
-    '01011000': ['up'],
-    '01010010': ['down'],
-    
-    '01100000': ['up', 'left'],
-    '01101000': ['up'],
-    '01100001': ['left'],
-
-    '01110000': ['up'],
-    '01111000': ['up'],
-
-    '10000000': ['right', 'down', 'left'],
-    '10000100': ['right'],
-    '10000010': ['down'],
-    '10000001': ['left'],
-
-    '10010000': ['right', 'down'],
-    '10010100': ['right'],
-    '10010010': ['down'],
-
-    '10100000': ['right', 'left'],
-    '10100100': ['right'],
-    '10100001': ['left'],
-
-    '10110000': ['right'],
-    '10110100': ['right'],
-
-    '11000000': ['down', 'left'],
-    '11000010': ['down'],
-    '11000001': ['left'],
-
-    '11010000': ['down'],
-    '11010010': ['down'],
-
-    '11100000': ['left'],
-    '11100001': ['left'],
-
-    '11110000': []
-
-}
 
 #A function to display the world with the row and column numbers.
 def displayWorld(world):
@@ -197,7 +229,7 @@ def RandWorld():
 
 #A function to move the agent up.
 def moveUp():
-    global wallAvoided
+    global wallAvoided, stepsMade
     #Finds the agent's position.
     row, col = np.where(world == 'A')
     row, col = row[0], col[0]
@@ -209,13 +241,14 @@ def moveUp():
         else:
             world[row][col] = ' '
             world[row - 1][col] = 'A'
+        stepsMade += 1
     else:
         wallAvoided += 1
 
 
 #A function to move the agent down.
 def moveDown():
-    global wallAvoided
+    global wallAvoided, stepsMade
     row, col = np.where(world == 'A')
     row, col = row[0], col[0]
     #Checks if the agent is not at the bottom of the world and if the space below the agent is not a wall.
@@ -226,13 +259,14 @@ def moveDown():
         else:
             world[row][col] = ' '
             world[row + 1][col] = 'A'
+        stepsMade += 1
     else:
         wallAvoided += 1
 
 
 #A function to move the agent left.
 def moveLeft():
-    global wallAvoided
+    global wallAvoided, stepsMade
     row, col = np.where(world == 'A')
     row, col = row[0], col[0]
     #Checks if the agent is not at the left of the world and if the space to the left of the agent is not a wall.
@@ -243,13 +277,14 @@ def moveLeft():
         else:
             world[row][col] = ' '
             world[row][col - 1] = 'A'
+        stepsMade += 1
     else:
         wallAvoided += 1
 
 
 #A function to move the agent right.
 def moveRight():
-    global wallAvoided
+    global wallAvoided, stepsMade
     row, col = np.where(world == 'A')
     row, col = row[0], col[0]
     #Checks if the agent is not at the right of the world and if the space to the right of the agent is not a wall.
@@ -260,6 +295,7 @@ def moveRight():
         else:
             world[row][col] = ' '
             world[row][col + 1] = 'A'
+        stepsMade += 1
     else:
         wallAvoided += 1
 
@@ -268,6 +304,9 @@ def moveRight():
 def isDirty(row, col):
     global cellsChecked
     cellsChecked += 1
+    if row < 0 or row > 9 or col < 0 or col > 9:
+        return False
+    
     if world[row][col] == '*':
         return True
     else:
@@ -276,9 +315,9 @@ def isDirty(row, col):
 
 #A function to suck the dirt.
 def suck(row, col):
-    global cellsCleaned, cellsChecked
+    global cellsCleaned
     cellsCleaned += 1
-    stepsTaken.append(cellsChecked)
+    stepsTaken.append(stepsMade)
     world[row][col] = 'A'
     if stepByStep == False:
         displayWorld(world)
@@ -301,51 +340,45 @@ def move(row, col):
         wallAvoided += 1
 
 
-def AppendToA():
-    row, col = np.where(world == 'A')
-    row, col = row[0], col[0]
-    a = ''
-    if row - 1 != world[row - 1, col] or row != 0:
+def AppendWalls(row, col):
+    global a
+    a = ""
+    if row != 0 and world[row - 1, col] != '#':
         a += '0'
     else:
         a += '1'
-    if row + 1 != '#' or row != 9:
+    if col != 9 and world[row, col + 1] != '#':
         a += '0'
     else:
         a += '1'
-    if col - 1 != world[row, col - 1] or col != 0:
+    if row != 9 and world[row + 1, col] != '#':
         a += '0'
     else:
         a += '1'
-    if col + 1 != '#' or col != 9:
+    if col != 0 and world[row, col - 1] != '#':
         a += '0'
     else:
         a += '1'
-    return a
 
 
-def AppendToB():
-    row, col = np.where(world == 'A')
-    row, col = row[0], col[0]
-    b = ''
-    if row - 1 != world[row - 1, col] or row != 0:
-        b += '0'
+def AppendDirt(row, col):
+    global a
+    if isDirty(row - 1, col) and row != 0:
+        a += 'T'
     else:
-        b += '1'
-    if row + 1 == '*' or row != 9:
-        b += '0'
+        a += 'F'
+    if isDirty(row, col+1) and col != 9:
+        a += 'T'
     else:
-        b += '1'
-    if col - 1 != world[row, col - 1] or col != 0:
-        b += '0'
+        a += 'F'
+    if isDirty(row + 1, col) and row != 9:
+        a += 'T'
     else:
-        b += '1'
-    if col + 1 == '*' or col != 9:
-        b += '0'
+        a += 'F'
+    if isDirty(row, col-1) and col != 0:
+        a += 'T'
     else:
-        b += '1'
-    return b
-
+        a += 'F'
 
 #A function to generate a random action for the Simple Reflex Agent.
 def SimpleReflexAgent():
@@ -357,9 +390,10 @@ def SimpleReflexAgent():
 
 #A function that acts as a table driven agent.
 def TableDrivenAgent():
-    a = AppendToA()
-    b = AppendToB()
-    a+=b
+    row, col = np.where(world == 'A')
+    row, col = row[0], col[0]
+    AppendWalls(row, col)
+    AppendDirt(row, col)
     if a in lookup_table:
         action = lookup_table[a][np.random.randint(0, len(lookup_table[a]))]
         if action == 'up':
@@ -372,6 +406,7 @@ def TableDrivenAgent():
             moveRight()
     else:
         print("Error: No action found for " + a)
+        displayWorld(world)
         return
 
 
