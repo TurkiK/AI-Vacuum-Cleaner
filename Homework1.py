@@ -7,7 +7,7 @@ stepByStep = False
 
 #Agent variable. 1 = Simple Reflex Agent, 2 = Table-Driven Agent.
 agent = 0
-a = ""
+state = ""
 
 #Performance measure variables.
 iterations = 0 #Cells checked + walls avoided. or the number of times the SimpleReflexAgent function was called.
@@ -20,10 +20,8 @@ stepsTaken = [] #List of steps taken to clean each cell.
 #World matrix.
 world = []
 
+#Look up table for the table-driven agent containing the actions for each state.
 lookup_table = {
-
-    #'00000101': ['up','left'],
-
     '0000FFFF': ['up', 'right', 'down', 'left'],
     '0000FFFT': ['left'],
     '0000FFTF': ['down'],
@@ -119,7 +117,7 @@ lookup_table = {
 }
 
 #A function to display the performance of the agent during the last world clean up.
-def performanceMeasure():
+def getScore():
     global iterations, wallAvoided, cellsChecked, cellsCleaned, stepsTaken, stepsMade
     print("All dirt has been cleaned!\n")
     print("Performance Measures: ")
@@ -174,24 +172,25 @@ def RandGen(max, entity):
     RandGen(max, entity) 
 
 
+#A function to selectively generate dirt in the world.
 def SelectGen():
         #Pick the number of dirt the user wants.
-        dirt = int(input("How many dirt do you want?"))
+        dirt = int(input("(?) Enter the number of dirt: "))
         
         displayWorld(world)
         #Generates the dirt one by one through row and column.
         while(dirt > 0):
-            location = list(map(int,input("Enter the desired location of the dirt, row and column seperated by space: ").split(' ')))
+            location = list(map(int,input("(?) Enter the desired location of the dirt, row and column seperated by space: ").split(' ')))
             if location[0] >= 0 and location[0] < 10 and location[1] >= 0 and location[1] < 10:
                 world[location[0]][location[1]] = '*'
                 displayWorld(world)
             else:
-                print("Empty space placed.")
+                print("(!) Empty space placed.")
                 continue
             dirt -= 1
 
         #Randomly generate the walls.
-        walls = int(input("Enter the number of walls: "))
+        walls = int(input("(?) Enter the number of walls: "))
         RandGen(walls, '#')
 
         #Places the agent at the top left corner.
@@ -199,19 +198,18 @@ def SelectGen():
 
         #Checks if there is more dirt than empty space.
         if np.count_nonzero(world == '*') > np.count_nonzero(world == ' '):
-            print("\nDirt is more than empty space. Try again.\n")
+            print("\n(!) Dirt is more than empty space. Try again.\n")
             return
         else:
             displayWorld(world)
-            print("World generated.\n")
+            print("World generated!\n")
             return
 
-
+#A function that randomly generates a world given the number of dirt and walls.
 def RandWorld():
-        #Generates the dirt and walls.
-        dirt = int(input("Enter the number of dirt: "))
+        dirt = int(input("(?) Enter the number of dirt: "))
         RandGen(dirt, '*')
-        walls = int(input("Enter the number of walls: "))
+        walls = int(input("(?) Enter the number of walls: "))
         RandGen(walls, '#')
 
         #Places the agent at the top left corner.
@@ -219,11 +217,11 @@ def RandWorld():
 
         #Checks if there is more dirt than empty space.
         if np.count_nonzero(world == '*') > np.count_nonzero(world == ' '):
-            print("\nDirt is more than empty space. Try again.\n")
+            print("\n(!) Dirt is more than empty space. Try again.\n")
             return
         else:
             displayWorld(world)
-            print("World generated.\n")
+            print("World generated!\n")
             return
 
 
@@ -312,6 +310,18 @@ def isDirty(row, col):
     else:
         return False
 
+#Asks the user if they want to see each step of the process.
+def showSteps():
+    global stepByStep
+    choice = int(input("(?) Do you wish to show steps? (1: Yes, 2: No): "))
+    if choice == 1:
+        stepByStep = True
+    elif choice == 2:
+        stepByStep = False
+    else:
+        print("(!) Invalid choice. Please try again.\n")
+        choice = 0
+
 
 #A function to suck the dirt.
 def suck(row, col):
@@ -337,48 +347,48 @@ def move(row, col):
     elif movement == 3 and col != 9: #Checks if the agent is at the right of the world and if the action is to move right.
         moveRight()
     else:
-        wallAvoided += 1
+        wallAvoided += 1 
 
-
+#A function to append the wall percepts of the table-driven agent to the state.
 def AppendWalls(row, col):
-    global a
-    a = ""
-    if row != 0 and world[row - 1, col] != '#':
-        a += '0'
+    global state
+    state = ""
+    if row != 0 and world[row - 1, col] != '#': #Checks if the space above the agent is a wall and if the agent is not at the top of the world.
+        state += '0'
     else:
-        a += '1'
-    if col != 9 and world[row, col + 1] != '#':
-        a += '0'
+        state += '1'
+    if col != 9 and world[row, col + 1] != '#': #Checks if the space to the right of the agent is a wall and if the agent is not at the right of the world.
+        state += '0'
     else:
-        a += '1'
-    if row != 9 and world[row + 1, col] != '#':
-        a += '0'
+        state += '1'
+    if row != 9 and world[row + 1, col] != '#': #Checks if the space below the agent is a wall and if the agent is not at the bottom of the world.
+        state += '0'
     else:
-        a += '1'
-    if col != 0 and world[row, col - 1] != '#':
-        a += '0'
+        state += '1'
+    if col != 0 and world[row, col - 1] != '#': #Checks if the space to the left of the agent is a wall and if the agent is not at the left of the world.
+        state += '0'
     else:
-        a += '1'
+        state += '1'
 
-
+#A function to append the dirt percepts of the table-driven agent to the state.
 def AppendDirt(row, col):
-    global a
-    if isDirty(row - 1, col) and row != 0:
-        a += 'T'
+    global state
+    if isDirty(row - 1, col) and row != 0: #Checks if the space above the agent is dirty and if the agent is not at the top of the world.
+        state += 'T'
     else:
-        a += 'F'
-    if isDirty(row, col+1) and col != 9:
-        a += 'T'
+        state += 'F'
+    if isDirty(row, col+1) and col != 9: #Checks if the space to the right of the agent is dirty and if the agent is not at the right of the world.
+        state += 'T'
     else:
-        a += 'F'
-    if isDirty(row + 1, col) and row != 9:
-        a += 'T'
+        state += 'F'
+    if isDirty(row + 1, col) and row != 9: #Checks if the space below the agent is dirty and if the agent is not at the bottom of the world.
+        state += 'T'
     else:
-        a += 'F'
-    if isDirty(row, col-1) and col != 0:
-        a += 'T'
+        state += 'F'
+    if isDirty(row, col-1) and col != 0: #Checks if the space to the left of the agent is dirty and if the agent is not at the left of the world.
+        state += 'T'
     else:
-        a += 'F'
+        state += 'F'
 
 #A function to generate a random action for the Simple Reflex Agent.
 def SimpleReflexAgent():
@@ -394,8 +404,8 @@ def TableDrivenAgent():
     row, col = row[0], col[0]
     AppendWalls(row, col)
     AppendDirt(row, col)
-    if a in lookup_table:
-        action = lookup_table[a][np.random.randint(0, len(lookup_table[a]))]
+    if state in lookup_table:
+        action = lookup_table[state][np.random.randint(0, len(lookup_table[state]))]
         if action == 'up':
             moveUp()
         elif action == 'down':
@@ -405,14 +415,13 @@ def TableDrivenAgent():
         elif action == 'right':
             moveRight()
     else:
-        print("Error: No action found for " + a)
+        print("(!) No action found for " + state)
         return
 
 
-
 while choice != 3:
-    print("1: Start sucking dirt.\n2: Generate the world.\n3: Quit")
-    choice = int(input("Enter a number: "))
+    print("\n1: Start simulation.\n2: Generate a world.\n3: Quit")
+    choice = int(input("(?) Enter a number: "))
     print("\n")
     #Starts the agent.
     if choice == 1:
@@ -420,15 +429,9 @@ while choice != 3:
         agent = int(input("1: Simple Reflex Agent\n2: Table-Driven Agent\nEnter a number: "))
         print("\n")
 
-        #Asks the user if they want to see each step of the process.
-        choice = int(input("Do you wish to show steps? (1: Yes, 2: No): "))
-        if choice == 1:
-            stepByStep = True
-        else:
-            stepByStep = False
-
         #Checks if the agent is the Simple Reflex Agent.
         if agent == 1 and world != []:
+            showSteps()
             while np.count_nonzero(world == '*') > 0:
                 SimpleReflexAgent()
                 if stepByStep == True:
@@ -437,13 +440,14 @@ while choice != 3:
                     time.sleep(0.125)
                 iterations += 1
             if len(stepsTaken) == 0:
-                print("The agent did not clean any dirt.\n")
+                print("(!) The agent did not clean any dirt.\n")
             else:
                 displayWorld(world)
-                performanceMeasure()
+                getScore()
                 world = []
         #Checks if the agent is the Table-Driven Agent.
-        elif agent == 2:
+        elif agent == 2 and world != []:
+            showSteps()
             while np.count_nonzero(world == '*') > 0:
                 TableDrivenAgent()
                 if stepByStep == True:
@@ -452,25 +456,25 @@ while choice != 3:
                     time.sleep(0.125)
                 iterations += 1
             if len(stepsTaken) == 0:
-                print("The agent did not clean any dirt.\n")
+                print("(!) The agent did not clean any dirt.\n")
             else:
                 displayWorld(world)
-                performanceMeasure()
+                getScore()
                 world = []
         else:
-            print("You must generate a world first.\n")
+            print("(!) There seems to be an error, check your input and make sure a world has been generated first!\n")
     #Generates the world.
     elif choice == 2:
         #Initializes the world with empty spaces.
         world = np.full((10,10), ' ')
 
-        choice = int(input("1: Generate a random world.\n2: Generate a custom world.\nEnter a number: "))
+        choice = int(input("1: Randomly generate a world.\n2: Generate a world with select dirt locations.\nEnter a number: "))
         if choice == 1:
             RandWorld()
         elif choice == 2:
             SelectGen()
         else:
-            print("Invalid input.\n")
+            print("(!) Invalid input.\n")
+            choice = 0
     elif choice == 3:
         print("Goodbye!\n")
-    
